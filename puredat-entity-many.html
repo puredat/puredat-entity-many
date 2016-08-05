@@ -1,0 +1,34 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`puredat-entity-many`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="puredat-entity-many">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'puredat-entity-many',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'puredat-entity-many',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
