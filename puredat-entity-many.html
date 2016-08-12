@@ -19,7 +19,6 @@
 		<!-- Si se quiere acentar el espacio o la coma como teclas para aceptar.... token-accept-key-codes="32,188" -->
 		<paper-input-autocomplete-chips
 				id="input"
-				remote-url="https://localhost:8443/api/brands"
 				on-selected-objects-changed="selectedObjectsChangedHandler"
 				on-response-treatment="responseTreatmentHandler"
 				placeholder="Buscar..."
@@ -79,6 +78,11 @@
 					type: Array,
 					notify: true,
 					observer: 'valuesChangedHandler'
+				},
+
+				/** Resource url. */
+				resourceUrl: {
+					type: String
 				},
 				
 				/** Internal values. */
@@ -158,7 +162,6 @@
 			},
 			
 			responseTreatmentHandler: function(event) {
-console.log("treatment");
 				var length = event.detail.response.length;
 				
 				for (var i = 0; i < length; i++) {
@@ -178,7 +181,7 @@ console.log("treatment");
 			},
 			
 			keyupHandler: function(event) {
-				this.$.input.remoteUrl = "https://localhost:8443/api/brands";
+				this.$.input.remoteUrl = this.resourceUrl;
 				if (this.$.input.inputValue != null
 						&& this.$.input.inputValue != ""
 						&& this.$.input.inputValue != " ") {
