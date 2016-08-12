@@ -1,34 +1,190 @@
 <link rel="import" href="../polymer/polymer.html">
-
+<link rel="import" href="../paper-input-autocomplete-chips/paper-input-autocomplete-chips.html">
 <!--
-`puredat-entity-many`
-
-
-@demo demo/index.html 
+	`puredat-entity-many` "ENTITY" type, "MANY" cardinality widget.
+	
+	@demo demo/index.html 
 -->
-
 <dom-module id="puredat-entity-many">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>TO-DO [[prop1]]</h2>
-  </template>
-
-  <script>
-    Polymer({
-
-      is: 'puredat-entity-many',
-
-      properties: {
-        prop1: {
-          type: String,
-          value: 'puredat-entity-many',
-        },
-      },
-
-    });
-  </script>
+	<template>
+		<style>
+			paper-input-autocomplete-chips {
+				--paper-input-container: {
+					padding-right: 10px;
+				}
+				--autocomplete-suggestions-container-max-height: 400px;
+			}
+		</style>
+		
+		<!-- Si se quiere acentar el espacio o la coma como teclas para aceptar.... token-accept-key-codes="32,188" -->
+		<paper-input-autocomplete-chips
+				id="input"
+				remote-url="https://localhost:8443/api/brands"
+				on-selected-objects-changed="selectedObjectsChangedHandler"
+				on-response-treatment="responseTreatmentHandler"
+				placeholder="Buscar..."
+				search-if-empty
+				disable-hover-select
+				max-suggestions="100"
+				placeholder-after-selected="Buscar..."
+				on-keyup="keyupHandler"
+				no-chip-image
+				always-float-label
+				maxlength="[[maxLength]]"
+				max-selected-items="100"
+				label="[[label]]"
+				read-only="[[readOnly]]"
+				selected-objects="{{_values}}"
+				error-message="[[errorMessage]]"
+				invalid="[[_isInvalid(errorMessage)]]"
+				allowed-pattern="[[pattern]]">
+			<!-- <div loading>Loading...</div>-->
+		</paper-input-autocomplete-chips>
+	</template>
+	
+	<script>
+		Polymer({
+			is: 'puredat-entity-many',
+			
+			properties: {
+				
+				/** Name */
+				name: {
+					type: String
+				},
+				
+				/** Maximum length. */
+				maxLength: {
+					type: Number,
+					value: 100
+				},
+				
+				/** Allowed pattern. For example: [a-zA-Z]. */
+				pattern: {
+					type: String
+				},
+				
+				/** Descriptive label. */
+				label: {
+					type: String
+				},
+				
+				/** Attributes that are used as label. */
+				labelAttributes: {
+					type: Array
+				},
+				
+				/** Values. */
+				values: {
+					type: Array,
+					notify: true,
+					observer: 'valuesChangedHandler'
+				},
+				
+				/** Internal values. */
+				_values: {
+					type: Array
+				},
+				
+				/** Error message. */
+				errorMessage: {
+					type: String
+				},
+				
+				/** Number of columns in a row of 10 columns. */
+				cols: {
+					type: Number,
+					value: 5,
+					observer: '_colsChangedHandler'
+				},
+				
+				/** Read only. */
+				readOnly: {
+					type: Boolean,
+					value: false
+				}
+			},
+			
+			observers: [
+				'_valuesChangedHandler(_values.splices)'
+			],
+			
+			_valuesChangedHandler: function(changeRecord) {
+				if (changeRecord != null) {
+					this.values = changeRecord.indexSplices[0].object;
+				}
+			},
+			
+			_colsChangedHandler: function(newValue, oldValue) {
+				this.style.minWidth = (50 * newValue) + "px";
+				this.style.flex = (10 * newValue) + "%";
+			},
+			
+			valuesChangedHandler: function(newValue, oldValue) {
+				if (newValue == null) {
+					this.set("_values", null);
+				}
+				else {
+					var labelAttributes = this.labelAttributes;
+					this.set("_values", newValue.map(function(item) { 
+						if (labelAttributes == null
+								|| labelAttributes.length == 0) {
+							item.text = "" + item._id;
+						}
+						else {
+							item.text = "";
+							for (var i = 0; i < labelAttributes.length; i++) {
+								if (i > 0)
+									item.text += " ";
+								item.text += item[labelAttributes[i]];
+							}
+						}
+						return item;
+					}));
+				}
+			},
+			
+			/**
+			 * Returns if the field is valid.
+			 * @param {String} errorMessage The error message.
+			 * @return {Boolean} If the input field is valid.
+			 */
+			_isInvalid: function(errorMessage) {
+				return errorMessage != null
+						&& errorMessage != "";
+			},
+			
+			selectedObjectsChangedHandler: function(event) {
+			},
+			
+			responseTreatmentHandler: function(event) {
+console.log("treatment");
+				var length = event.detail.response.length;
+				
+				for (var i = 0; i < length; i++) {
+					if (this.labelAttributes == null
+							|| this.labelAttributes.length == 0) {
+						event.detail.response[i].text = "" + event.detail.response[i]._id;
+					}
+					else {
+						event.detail.response[i].text = "";
+						for (var j = 0; j < this.labelAttributes.length; j++) {
+							if (j > 0)
+								event.detail.response[i].text += " ";
+							event.detail.response[i].text += event.detail.response[i][this.labelAttributes[j]];
+						}
+					}
+				}
+			},
+			
+			keyupHandler: function(event) {
+				this.$.input.remoteUrl = "https://localhost:8443/api/brands";
+				if (this.$.input.inputValue != null
+						&& this.$.input.inputValue != ""
+						&& this.$.input.inputValue != " ") {
+					this.$.input.remoteUrl += "?_search=" + this.$.input.inputValue;
+				}
+			}
+		});
+	</script>
 </dom-module>
