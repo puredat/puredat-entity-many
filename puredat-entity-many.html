@@ -30,7 +30,7 @@
 				no-chip-image
 				always-float-label
 				maxlength="[[maxLength]]"
-				max-selected-items="100"
+				max-selected-items="[[maxSelectedItems]]"
 				label="[[label]]"
 				read-only="[[readOnly]]"
 				selected-objects="{{_values}}"
@@ -54,6 +54,12 @@
 				
 				/** Maximum length. */
 				maxLength: {
+					type: Number,
+					value: 100
+				},
+				
+				/** Maximum selected items. */
+				maxSelectedItems: {
 					type: Number,
 					value: 100
 				},
