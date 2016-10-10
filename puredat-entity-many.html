@@ -127,7 +127,7 @@
 			
 			_colsChangedHandler: function(newValue, oldValue) {
 				this.style.minWidth = (30 * newValue) + "px";
-				this.style.flex = (10 * newValue) + "%";
+				this.style.flex = "0 0 " + (10 * newValue) + "%";
 			},
 			
 			valuesChangedHandler: function(newValue, oldValue) {
