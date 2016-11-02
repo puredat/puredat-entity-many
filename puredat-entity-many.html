@@ -187,6 +187,7 @@
 			},
 			
 			keyupHandler: function(event) {
+				this.errorMessage = null;
 				this.$.input.remoteUrl = this.resourceUrl;
 				if (this.$.input.inputValue != null
 						&& this.$.input.inputValue != ""
