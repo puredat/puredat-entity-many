@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-input-autocomplete-chips/paper-input-autocomplete-chips.html">
+<link rel="import" href="../puredat-paper-input-autocomplete-chips/paper-input-autocomplete-chips.html">
 <!--
 	`puredat-entity-many` "ENTITY" type, "MANY" cardinality widget.
 	
@@ -19,6 +19,7 @@
 		<!-- Si se quiere acentar el espacio o la coma como teclas para aceptar.... token-accept-key-codes="32,188" -->
 		<paper-input-autocomplete-chips
 				id="input"
+				tabindex="-1"
 				on-selected-objects-changed="selectedObjectsChangedHandler"
 				on-response-treatment="responseTreatmentHandler"
 				placeholder="Buscar..."
@@ -187,12 +188,27 @@
 			},
 			
 			keyupHandler: function(event) {
-				this.errorMessage = null;
-				this.$.input.remoteUrl = this.resourceUrl;
-				if (this.$.input.inputValue != null
-						&& this.$.input.inputValue != ""
-						&& this.$.input.inputValue != " ") {
-					this.$.input.remoteUrl += "?search=" + this.$.input.inputValue;
+				if (event.key != "Escape") {
+					this.errorMessage = null;
+					if (this.$.input.inputValue != null
+							&& this.$.input.inputValue != ""
+							&& this.$.input.inputValue != " ") {
+						this.$.input.remoteUrl = this.resourceUrl + "?search=" + this.$.input.inputValue;
+					}
+					else if (event.key != "Meta" && event.key != "Alt" && event.key != "Control") {
+						this.$.input.remoteUrl = null;
+					}
+					else {
+						if (this.$.input.remoteUrl == null) {
+							this.$.input.remoteUrl = this.resourceUrl;
+						}
+						else {
+							this.$.input.remoteUrl = null;
+						}
+					}
+				}
+				else {
+					this.$.input.remoteUrl = null;
 				}
 			}
 		});

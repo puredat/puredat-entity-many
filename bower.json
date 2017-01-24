@@ -3,7 +3,7 @@
   "main": "puredat-entity-many.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
-    "paper-input-autocomplete-chips": "^0.29.1"
+    "puredat-paper-input-autocomplete-chips": "puredat/puredat-paper-input-autocomplete-chips#^1.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
