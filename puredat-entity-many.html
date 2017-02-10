@@ -191,9 +191,11 @@
 				if (event.key != "Escape") {
 					this.errorMessage = null;
 					if (this.$.input.inputValue != null
-							&& this.$.input.inputValue != ""
-							&& this.$.input.inputValue != " ") {
-						this.$.input.remoteUrl = this.resourceUrl + "?search=" + this.$.input.inputValue;
+							&& this.$.input.inputValue != "") {
+						this.$.input.remoteUrl = this.resourceUrl;
+						if (this.$.input.inputValue.trim() != "") {
+							this.$.input.remoteUrl += "?search=" + this.$.input.inputValue.trim();
+						}
 					}
 					else if (event.key != "Meta" && event.key != "Alt" && event.key != "Control") {
 						this.$.input.remoteUrl = null;
@@ -208,6 +210,11 @@
 					}
 				}
 				else {
+					if (this.$.input.remoteUrl == null
+							|| this.$.input.remoteUrl == "") {
+						// Salir de la ventana
+						this.fire('keydown', event);
+					}
 					this.$.input.remoteUrl = null;
 				}
 			}
