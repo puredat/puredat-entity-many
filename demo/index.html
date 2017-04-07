@@ -14,6 +14,12 @@
 		
 		<style is="custom-style" include="demo-pages-shared-styles">
 		</style>
+		
+		<script>
+			getAccessToken = function() {
+				return "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.lgOj8VyGLu80NI1bJ0Q6GM2o5BzOupQCLIbZIbmt428";
+			};
+		</script>
 	</head>
 	<body>
 		<div style="max-width: 1000px" class="vertical-section-container centered">
@@ -24,7 +30,7 @@
 						<puredat-entity-many 
 								id="field1"
 								name="field1"
-								resource-url="https://localhost:8443/api/domains"
+								resource-url="http://localhost:9000/api/domains"
 								label-attributes='["name"]'
 								max-length="50"
 								max-selected-items="3"
@@ -35,7 +41,7 @@
 						<puredat-entity-many
 								name="field2" 
 								cols="2" 
-								resource-url="https://localhost:8443/api/domains"								
+								resource-url="http://localhost:9000/api/domains"								
 								pattern="[A-Za-z 0-9]"
 								read-only 
 								label-attributes='["name"]'
