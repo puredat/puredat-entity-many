@@ -15,6 +15,15 @@
 				--autocomplete-suggestions-container-max-height: 400px;
 			}
 		</style>
+		<script>
+		window.addEventListener('WebComponentsReady', function(e) {
+			var chips = document.querySelectorAll("paper-chip");
+			for(var i=0 ;i<chips.length; i++){
+				chips[i].draggable=true;
+				chips[i].id=i;
+			}
+        });
+</script>
 		
 		<!-- Si se quiere acentar el espacio o la coma como teclas para aceptar.... token-accept-key-codes="32,188" -->
 		<paper-input-autocomplete-chips
@@ -37,7 +46,8 @@
 				selected-objects="{{_values}}"
 				error-message="[[errorMessage]]"
 				invalid="[[_isInvalid(errorMessage)]]"
-				allowed-pattern="[[pattern]]">
+				allowed-pattern="[[pattern]]"
+				on-track="handleTrack">
 			<!-- <div loading>Loading...</div>-->
 		</paper-input-autocomplete-chips>
 	</template>
@@ -158,8 +168,15 @@
 						return item;
 					}));
 				}
+				var chips = document.querySelectorAll("paper-chip");
+				for(var i=0 ;i<chips.length; i++){
+					chips[i].draggable=true;
+					chips[i].id=i;
+				}
+				
 			},
 			
+		
 			/**
 			 * Returns if the field is valid.
 			 * @param {String} errorMessage The error message.
@@ -190,6 +207,7 @@
 						}
 					}
 				}
+
 			},
 			
 			keyupHandler: function(event) {
@@ -224,7 +242,56 @@
 				}
 
 				if(this.$.input.remoteUrl != null && this.additionalUrlParams != null) this.$.input.remoteUrl += ((this.$.input.remoteUrl.indexOf("?") >= 0 ? "&" : "?") + this.additionalUrlParams);
-			}
+				
+				
+			},
+			handleTrack: function(event){
+		        switch(event.detail.state) {
+		          case 'end':
+		        	var from = event.target;
+					var to = event.detail.hover();
+					var posTo, posFrom;
+					while(from.parentNode!=null && typeof from.parentNode != undefined && from.tagName!='PAPER-CHIP'){
+						from=from.parentNode;
+					}
+					posFrom = from.id;
+					while(to.parentNode!=null && typeof to.parentNode != undefined && to.tagName!='PAPER-CHIP'){
+						to=to.parentNode;
+					}
+					if(to.tagName != 'PAPER-CHIP'){
+						var elem = document.elementFromPoint(event.detail.x, event.detail.y);
+						if(document.getElementById("inputTagsContainer").contains(elem)){
+							var chips = document.querySelectorAll("paper-chip");
+							var minDis=10000;
+							var minChip;
+							for(var i=0 ;i<chips.length; i++){
+								var rect = chips[i].getBoundingClientRect();
+								var dis = rect.left - event.detail.x;
+								if(dis>0 && dis<minDis) {
+									minDis = dis;
+									minChip = chips[i];
+								}
+							
+							}
+							to = minChip;
+						}
+
+					}
+					
+					if(to.tagName == 'PAPER-CHIP'){
+		            	to.parentNode.insertBefore(from, to);
+		            	posTo = to.id;
+		            	this.values.splice(posTo, 0, this.values[posFrom]);
+		            	this._values.splice(posTo, 0, this.values[posFrom]);
+		            	if(posTo<posFrom)
+		            		posFrom++;
+		            	this.values.splice(posFrom, 1);
+		            	this._values.splice(posFrom, 1);
+					}
+		            break;
+		        }
+		      }
+
 		});
 	</script>
 </dom-module>
