@@ -17,9 +17,10 @@
 		</style>
 		<script>
 		window.addEventListener('WebComponentsReady', function(e) {
+			var draggable = document.querySelector("paper-input-autocomplete-chips").draggable;
 			var chips = document.querySelectorAll("paper-chip");
 			for(var i=0 ;i<chips.length; i++){
-				chips[i].draggable=true;
+				chips[i].draggable=draggable;
 				chips[i].id=i;
 			}
         });
@@ -47,6 +48,7 @@
 				error-message="[[errorMessage]]"
 				invalid="[[_isInvalid(errorMessage)]]"
 				allowed-pattern="[[pattern]]"
+				draggable="[[draggable]]"
 				on-track="handleTrack">
 			<!-- <div loading>Loading...</div>-->
 		</paper-input-autocomplete-chips>
@@ -128,6 +130,11 @@
 				readOnly: {
 					type: Boolean,
 					value: false
+				},
+
+				draggable: {
+					type: Boolean,
+					value: false
 				}
 			},
 			
@@ -147,6 +154,7 @@
 			},
 			
 			valuesChangedHandler: function(newValue, oldValue) {
+				
 				if (newValue == null) {
 					this.set("_values", null);
 				}
@@ -170,7 +178,7 @@
 				}
 				var chips = document.querySelectorAll("paper-chip");
 				for(var i=0 ;i<chips.length; i++){
-					chips[i].draggable=true;
+					chips[i].draggable=this.draggable;
 					chips[i].id=i;
 				}
 				
@@ -246,50 +254,54 @@
 				
 			},
 			handleTrack: function(event){
-		        switch(event.detail.state) {
-		          case 'end':
-		        	var from = event.target;
-					var to = event.detail.hover();
-					var posTo, posFrom;
-					while(from.parentNode!=null && typeof from.parentNode != undefined && from.tagName!='PAPER-CHIP'){
-						from=from.parentNode;
-					}
-					posFrom = from.id;
-					while(to.parentNode!=null && typeof to.parentNode != undefined && to.tagName!='PAPER-CHIP'){
-						to=to.parentNode;
-					}
-					if(to.tagName != 'PAPER-CHIP'){
-						var elem = document.elementFromPoint(event.detail.x, event.detail.y);
-						if(document.getElementById("inputTagsContainer").contains(elem)){
-							var chips = document.querySelectorAll("paper-chip");
-							var minDis=10000;
-							var minChip;
-							for(var i=0 ;i<chips.length; i++){
-								var rect = chips[i].getBoundingClientRect();
-								var dis = rect.left - event.detail.x;
-								if(dis>0 && dis<minDis) {
-									minDis = dis;
-									minChip = chips[i];
-								}
-							
+				if(this.draggable){
+		        	switch(event.detail.state) {
+		          		case 'end':
+				        	var from = event.target;
+							var to = event.detail.hover();
+							var posTo, posFrom;
+							while(from.parentNode!=null && typeof from.parentNode != undefined && from.tagName!='PAPER-CHIP'){
+								from=from.parentNode;
 							}
-							to = minChip;
-						}
+							posFrom = from.id;
+							while(to.parentNode!=null && typeof to.parentNode != undefined && to.tagName!='PAPER-CHIP'){
+								to=to.parentNode;
+							}
+							if(to.tagName != 'PAPER-CHIP'){
+								var elem = document.elementFromPoint(event.detail.x, event.detail.y);
+								if(document.getElementById("inputTagsContainer").contains(elem)){
+									var chips = document.querySelectorAll("paper-chip");
+									var minDis=10000;
+									var minChip;
+									for(var i=0 ;i<chips.length; i++){
+										var rect = chips[i].getBoundingClientRect();
+										var dis = rect.left - event.detail.x;
+										if(dis>0 && dis<minDis) {
+											minDis = dis;
+											minChip = chips[i];
+										}
+							
+									}
+									to = minChip;
+								}
 
-					}
+							}
 					
-					if(to.tagName == 'PAPER-CHIP'){
-		            	to.parentNode.insertBefore(from, to);
-		            	posTo = to.id;
-		            	this.values.splice(posTo, 0, this.values[posFrom]);
-		            	this._values.splice(posTo, 0, this.values[posFrom]);
-		            	if(posTo<posFrom)
-		            		posFrom++;
-		            	this.values.splice(posFrom, 1);
-		            	this._values.splice(posFrom, 1);
-					}
-		            break;
-		        }
+							if(to && to.tagName == 'PAPER-CHIP'){
+		            			posTo = to.id;
+		            			this.splice("_values",posTo, 0, this._values[posFrom]);
+		            			if(posTo<posFrom)
+		            				posFrom++;
+		            			this.splice("_values",posFrom, 1);
+		            			var chips = document.querySelectorAll("paper-chip");
+		        				for(var i=0 ;i<chips.length; i++){
+		        					chips[i].draggable=this.draggable;
+		        					chips[i].id=i;
+		        				}
+							}
+		            		break;
+		        	}
+				}	
 		      }
 
 		});
