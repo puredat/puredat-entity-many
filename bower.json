@@ -1,5 +1,6 @@
 {
   "name": "puredat-entity-many",
+  "version": "1.2.0",
   "main": "puredat-entity-many.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
