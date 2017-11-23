@@ -4,17 +4,18 @@
 		<title>puredat-entity-many demo</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
-		
+
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-		
+
 		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
 		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+		<link rel="import" href="../../paper-material/paper-material.html">
 		<link rel="import" href="../../paper-button/paper-button.html">
 		<link rel="import" href="../puredat-entity-many.html">
-		
+
 		<style is="custom-style" include="demo-pages-shared-styles">
 		</style>
-		
+
 		<script>
 			getAccessToken = function() {
 				return "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluIn0.lgOj8VyGLu80NI1bJ0Q6GM2o5BzOupQCLIbZIbmt428";
@@ -26,62 +27,79 @@
 			<h3>puredat-entity-many demo</h3>
 			<demo-snippet>
 				<template>
-					<div style="display: flex">
-						<puredat-entity-many 
+					<div>
+
+						<p>An example of <code>&lt;puredat-entity-many&gt;</code> with values selecion</p>
+
+						<puredat-entity-many
 								id="field1"
 								name="field1"
-								resource-url="http://localhost:9000/api/domains"
+								resource-url="http://localhost:9001/api/domains"
+								label-attributes='["name"]'
+								max-length="50"
+								max-selected-items="3"
+								label="Just a entity-many test"
+								cols="8">
+						</puredat-entity-many>
+
+						<paper-button onclick="setErrorMessageClickHandler(event)">Set error message</paper-button>
+						<paper-button onclick="resetErrorMessageClickHandler(event)">Reset error message</paper-button>
+
+						<paper-button onclick="getValueClickHandler(event)">Get values</paper-button>
+						<paper-button onclick="setValueClickHandler(event)">Set values</paper-button>
+
+						<p>An example of <code>&lt;puredat-entity-many&gt;</code> as read-only</p>
+						<puredat-entity-many
+								name="field2"
+								cols="2"
+								resource-url="http://localhost:9001/api/domains"
+								pattern="[A-Za-z 0-9]"
+								read-only
+								label-attributes='["name"]'
+								values='[{"_id": 1, "name": "Police"}]'>
+						</puredat-entity-many>
+
+						<p>An example of <code>&lt;puredat-entity-many&gt;</code> with drag and drop support</p>
+						<puredat-entity-many
+								id="field1"
+								name="field1"
+								resource-url="http://localhost:9001/api/domains"
 								label-attributes='["name"]'
 								max-length="50"
 								max-selected-items="3"
 								label="Just a entity-many test"
 								cols="8"
-								draggable="true"'>
-						</puredat-entity-many>
-						
-						<puredat-entity-many
-								name="field2" 
-								cols="2" 
-								resource-url="http://localhost:9000/api/domains"								
-								pattern="[A-Za-z 0-9]"
-								read-only 
-								label-attributes='["name"]'
-								values='[{"_id": 1, "name": "Police"}]'
-								draggable="false">
+								allow-chips-drag-drop>
 						</puredat-entity-many>
 					</div>
-					
-					<paper-button onclick="setErrorMessageClickHandler(event)">Set error message</paper-button>
-					<paper-button onclick="resetErrorMessageClickHandler(event)">Reset error message</paper-button>
-					
-					<paper-button onclick="getValueClickHandler(event)">Get values</paper-button>
-					<paper-button onclick="setValueClickHandler(event)">Set values</paper-button>
-					
+
+
+
 					<script>
 						function setErrorMessageClickHandler(event) {
 							document.getElementById("field1").errorMessage = "Error message";
 						}
-						
+
 						function resetErrorMessageClickHandler(event) {
 							document.getElementById("field1").errorMessage = null;
 						}
-						
+
 						function getValueClickHandler(event) {
 							console.log(document.getElementById("field1").values);
 						}
-						
+
 						function setValueClickHandler(event) {
 							document.getElementById("field1").values = [{
 								_id: 1,
 								name: "Alcott"
-							}, 
+							},
 							{
 								_id: 2,
 								name: "Police"
 							}];
 						}
 					</script>
-				</template> 
+				</template>
 			</demo-snippet>
 		</div>
 	</body>
