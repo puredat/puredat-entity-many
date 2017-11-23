@@ -2,8 +2,8 @@
 <link rel="import" href="../puredat-paper-input-autocomplete-chips/paper-input-autocomplete-chips.html">
 <!--
 	`puredat-entity-many` "ENTITY" type, "MANY" cardinality widget.
-	
-	@demo demo/index.html 
+
+	@demo demo/index.html
 -->
 <dom-module id="puredat-entity-many">
 	<template>
@@ -15,7 +15,8 @@
 				--autocomplete-suggestions-container-max-height: 400px;
 			}
 		</style>
-		
+
+
 		<!-- Si se quiere acentar el espacio o la coma como teclas para aceptar.... token-accept-key-codes="32,188" -->
 		<paper-input-autocomplete-chips
 				id="input"
@@ -37,49 +38,51 @@
 				selected-objects="{{_values}}"
 				error-message="[[errorMessage]]"
 				invalid="[[_isInvalid(errorMessage)]]"
-				allowed-pattern="[[pattern]]">
+				allowed-pattern="[[pattern]]"
+				allow-chips-drag-drop="[[allowChipsDragDrop]]"
+				on-track="handleTrack">
 			<!-- <div loading>Loading...</div>-->
 		</paper-input-autocomplete-chips>
 	</template>
-	
+
 	<script>
 		Polymer({
 			is: 'puredat-entity-many',
-			
+
 			properties: {
-				
+
 				/** Name */
 				name: {
 					type: String
 				},
-				
+
 				/** Maximum length. */
 				maxLength: {
 					type: Number,
 					value: 100
 				},
-				
+
 				/** Maximum selected items. */
 				maxSelectedItems: {
 					type: Number,
 					value: 100
 				},
-				
+
 				/** Allowed pattern. For example: [a-zA-Z]. */
 				pattern: {
 					type: String
 				},
-				
+
 				/** Descriptive label. */
 				label: {
 					type: String
 				},
-				
+
 				/** Attributes that are used as label. */
 				labelAttributes: {
 					type: Array
 				},
-				
+
 				/** Values. */
 				values: {
 					type: Array,
@@ -96,53 +99,64 @@
 				additionalUrlParams: {
 					type: String
 				},
-				
+
 				/** Internal values. */
 				_values: {
 					type: Array
 				},
-				
+
 				/** Error message. */
 				errorMessage: {
 					type: String
 				},
-				
+
 				/** Number of columns in a row of 10 columns. */
 				cols: {
 					type: Number,
 					value: 5,
 					observer: '_colsChangedHandler'
 				},
-				
+
 				/** Read only. */
 				readOnly: {
 					type: Boolean,
 					value: false
+				},
+
+				/** Flag to enable drag & drop on chips**/
+				allowChipsDragDrop: {
+					type: Boolean,
+					value: function() {
+						return false;
+					}
 				}
 			},
-			
+
 			observers: [
 				'_valuesChangedHandler(_values.splices)'
 			],
-			
+
 			_valuesChangedHandler: function(changeRecord) {
 				if (changeRecord != null) {
 					this.values = changeRecord.indexSplices[0].object;
 				}
 			},
-			
+
 			_colsChangedHandler: function(newValue, oldValue) {
 				this.style.minWidth = (30 * newValue) + "px";
 				this.style.flex = "0 0 " + (10 * newValue) + "%";
 			},
-			
+
 			valuesChangedHandler: function(newValue, oldValue) {
+
 				if (newValue == null) {
 					this.set("_values", null);
 				}
 				else {
 					var labelAttributes = this.labelAttributes;
-					this.set("_values", newValue.map(function(item) { 
+					this.set("_values", newValue.map(function(item, index) {
+						item._chipIndex = index;
+
 						if (labelAttributes == null
 								|| labelAttributes.length == 0) {
 							item.text = "" + item._id;
@@ -159,7 +173,8 @@
 					}));
 				}
 			},
-			
+
+
 			/**
 			 * Returns if the field is valid.
 			 * @param {String} errorMessage The error message.
@@ -169,13 +184,13 @@
 				return errorMessage != null
 						&& errorMessage != "";
 			},
-			
+
 			selectedObjectsChangedHandler: function(event) {
 			},
-			
+
 			responseTreatmentHandler: function(event) {
 				var length = event.detail.response.length;
-				
+
 				for (var i = 0; i < length; i++) {
 					if (this.labelAttributes == null
 							|| this.labelAttributes.length == 0) {
@@ -190,8 +205,9 @@
 						}
 					}
 				}
+
 			},
-			
+
 			keyupHandler: function(event) {
 				if (event.key != "Escape") {
 					this.errorMessage = null;
@@ -224,7 +240,77 @@
 				}
 
 				if(this.$.input.remoteUrl != null && this.additionalUrlParams != null) this.$.input.remoteUrl += ((this.$.input.remoteUrl.indexOf("?") >= 0 ? "&" : "?") + this.additionalUrlParams);
+
+
+			},
+			handleTrack: function(event) {
+			  if (this.allowChipsDragDrop) {
+			    switch (event.detail.state) {
+			      case 'end':
+			        var from = event.target;
+			        var to = event.detail.hover();
+
+			        var posTo, posFrom;
+			        while (from.parentNode != null && typeof from.parentNode != undefined && from.tagName != 'PAPER-CHIP') {
+			          from = from.parentNode;
+			        }
+			        posFrom = from.dataObject._chipIndex;
+			        while (to.parentNode != null && typeof to.parentNode != undefined && to.tagName != 'PAPER-CHIP') {
+			          to = to.parentNode;
+			        }
+
+			        var posTo = null;
+			        if (to.tagName != 'PAPER-CHIP') {
+			          var elem = document.elementFromPoint(event.detail.x, event.detail.y);
+			          if (this.$.input.$$("#inputTagsContainer").contains(elem)) {
+			            var chips = this.$.input.querySelectorAll("paper-chip");
+			            var minDis = 10000;
+			            var minChip;
+			            for (var i = 0; i < chips.length; i++) {
+			              var rect = chips[i].getBoundingClientRect();
+			              var dis = rect.left - event.detail.x;
+			              if (dis > 0 && dis < minDis) {
+			                minDis = dis;
+			                minChip = chips[i];
+			              }
+
+			            }
+
+			            if (minChip != null) {
+			              to = minChip;
+			              posTo = to.dataObject._chipIndex;
+			            } else if (event.detail.x < chips[0].getBoundingClientRect().left) {
+			              to = chips[0];
+			              posTo = 0;
+			            } else if (event.detail.x > chips[chips.length - 1].getBoundingClientRect().right) {
+			              to = chips[chips.length - 1];
+			              posTo = chips.length - 1;
+			            }
+			          }
+			        }
+
+			        if (to && to.tagName == 'PAPER-CHIP') {
+			          if (posTo == null) {
+			            posTo = to.dataObject._chipIndex;
+			          }
+
+			          /** Place value in it's new place**/
+			          if (posFrom < posTo) {
+			            posTo = posTo + 1;
+			          }
+			          this.splice('_values', posTo, 0, this._values[posFrom]);
+
+			          /** Remove value from old position**/
+			          if (posTo < posFrom) {
+			            posFrom++;
+			          }
+			          this.splice('_values', posFrom, 1);
+			        }
+			        break;
+			    }
+			  }
 			}
+
 		});
 	</script>
 </dom-module>
